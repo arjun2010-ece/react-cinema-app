@@ -3,7 +3,7 @@ import React from 'react'
 const App = () => {
   return (
     <div>
-      cinema app...
+      cinema app...wow cool edit develop branch.
     </div>
   )
 }
