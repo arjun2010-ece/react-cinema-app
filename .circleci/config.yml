@@ -1,17 +1,23 @@
 version: 2.1
-orbs:
-  node: circleci/node@3.0.0
+
 jobs:
-  build-and-test:
-    executor:
-      name: node/default
+  build:
+    docker:
+      - image: circleci/node:14.7.0
+    working_directory: ~/repo
     steps:
       - checkout
-      - node/with-cache:
-          steps:
-            - run:  npm install
-            - run:  npm test
-workflows:
-  node-tests:
-    jobs:
-      - node/test
+      - run:
+          name: Show current branch
+          command:  echo  ${CURRENT_BRANCH}
+      - restore_cache:
+          key:
+            - app-{{ checksum  "package.json" }}
+            - app-
+      - run:
+          name: Install dependencies
+          command:  npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key:  app-{{ checksum  "package.json" }}
