@@ -1,68 +1,93 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+1. create 3 branches: develop(default), staging, master. and make develop branch default by going to settings --> branches
+2. setup circle CI jobs by logging into circleCI and selecting the project for setup there by choosing your accounts there.
+3. 
 
-## Available Scripts
 
-In the project directory, you can run:
+CIRCLE CI CONCEPTS:
 
-### `yarn start`
+ orbs: its like npm packages/libraries that if imported gives us easy access to a lot of things like aws/slack images for easy integration.
+ ------------------------
+ ```WORKFLOWS:
+ workflow is made of many jobs and run order too. 
+ while defining workflow, first workflow name should be mentioned and then different jobs that will run in that workflows.
+ e.g::
+ "build_and_test" is the name of workflow. "jobs" defines the list of jobs for running below and then we put "requires" as a checklist for starting that particular job.
+ --> build1 runs independently of other jobs.
+ --> build2 running requires build1 to complete successfully.
+ --> build3 running requires build1 to complete successfully.
+  
+ workflows:
+  build_and_test: # name of your workflow
+    jobs:
+      - build1
+      - build2:
+          requires:
+           - build1 # wait for build1 job to complete successfully before starting
+      - build3:
+          requires:
+           - build1 # wait for build1 job to complete successfully before starting
+           # run build2 and build3 concurrently to save time.
+ 
+ --------------------------
+ JOBS::
+ ----
+ 
+ Jobs are specific tasks that will be executed.
+ e.g:
+ build job ---> builds the code from commited changes[when we commit we only push the changes to github only not the whole code].This is always the first job.
+ lint job -->  lint the code so that a specific standard can be maintained.
+ test job ---> tests the codebase with unit/integration test.
+ aws deploy jobs ---> it deploys the code to aws.
+ slack job ---> it sends the notification to slack
+ 
+ The description of a job:
+ All the jobs contain name. Inside name we define the environment where we run the job like docker images and steps which has command for running the jobs.
+ 
+ whenever first job run we will cache the node modules and other dependencies first time and for other jobs subsequently
+ we restore_cache only. DOing that subsequent jobs willl build quickly and run fast.
+ 
+ 
+ jobs:
+  build1: //name of the first job
+    docker: //environment
+      - image: circleci/ruby:2.4-node
+      - image: circleci/postgres:9.4.12-alpine
+    steps: //command
+      - checkout
+      - save_cache: # Caches dependencies with a cache key
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/circleci-demo-workflows
+      
+  build2: //name of the second job
+    docker:
+      - image: circleci/ruby:2.4-node
+      - image: circleci/postgres:9.4.12-alpine
+    steps:
+      - restore_cache: # Restores the cached dependency.
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Running tests
+          command: make test
+  build3: //name of the third job
+    docker:
+      - image: circleci/ruby:2.4-node
+      - image: circleci/postgres:9.4.12-alpine
+    steps:
+      - restore_cache: # Restores the cached dependency.
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Precompile assets
+          command: bundle exec rake assets:precompile
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+ ```
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
