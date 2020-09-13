@@ -7,6 +7,7 @@ CIRCLE CI CONCEPTS:
 
  orbs: its like npm packages/libraries that if imported gives us easy access to a lot of things like aws/slack images for easy integration.
  ------------------------
+ ```WORKFLOWS:
  workflow is made of many jobs and run order too. 
  while defining workflow, first workflow name should be mentioned and then different jobs that will run in that workflows.
  e.g::
@@ -79,7 +80,7 @@ CIRCLE CI CONCEPTS:
           name: Precompile assets
           command: bundle exec rake assets:precompile
 
- 
+ ```
  
  
  
