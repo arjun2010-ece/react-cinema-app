@@ -43,7 +43,7 @@ CIRCLE CI CONCEPTS:
  All the jobs contain name. Inside name we define the environment where we run the job like docker images and steps which has command for running the jobs.
  
  whenever first job run we will cache the node modules and other dependencies first time and for other jobs subsequently
- we restore_cache only.
+ we restore_cache only. DOing that subsequent jobs willl build quickly and run fast.
  
  
  jobs:
